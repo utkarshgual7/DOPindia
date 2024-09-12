@@ -1,0 +1,47 @@
+# Node.js modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Dependency directories
+bk/node_modules/
+sihproject/node_modules/
+
+# Environment variables
+.env
+
+# Build directories
+build/
+dist/
+
+# React-specific
+/public/static/
+*.cache
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Miscellaneous
+.DS_Store
+*.pem
+*.p12
+.vscode/
+.idea/
+*.swp
+
+# Coverage directory used by testing tools like jest or cypress
+coverage/
+
+# Production bundle files
+client/build/
+server/build/
+
+# MongoDB
+dump/
+*.lock

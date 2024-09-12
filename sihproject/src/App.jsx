@@ -1,0 +1,86 @@
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import ScrollToTop from "./components/ScrollToTop.jsx";
+
+import Preloader from "./components/Preloader.jsx";
+import DeliveryDetails from "./pages/DeliveryDetails.jsx";
+import { HelmetProvider } from "react-helmet-async";
+import CreateAccount from "./pages/CreateAccount.jsx";
+
+import Signin from "./pages/Signin.jsx";
+import OfficeLogin from "./pages/OfficeLogin.jsx";
+import EmployeeDashboard from "./pages/EmployeeDashboard.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import OfficerRegistration from "./pages/OfficerRegistration.jsx";
+import BookParcel from "./pages/BookParcel.jsx";
+import UpdateStatus from "./pages/UpdateStatus.jsx";
+import ViewParcels from "./pages/ViewParcels.jsx";
+import SuccessPage from "./pages/SuccessPage.jsx";
+import Ofd from "./pages/Ofd.jsx";
+import ComplaintForm from "./pages/ComplaintForm.jsx";
+import TrackParcel from "./pages/TrackParcel.jsx";
+import Feedback from "./pages/Feedback.jsx";
+import ComplaintList from "./pages/ComplaintList.jsx";
+import ModifyOrder from "./pages/ModifyOrder.jsx";
+import Home from "./pages/Home.jsx";
+import SafeRoute from "./components/SafeRoute.jsx";
+import OrderDetails from "./pages/OrderDetails.jsx";
+import Navigation from "./pages/Navigation.jsx";
+import SaveLocation from "./pages/SaveLocation.jsx";
+
+const App = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000); // Adjust the duration based on your needs
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <Preloader />;
+  }
+
+  return (
+    <HelmetProvider>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<CreateAccount />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/officerlogin" element={<OfficeLogin />} />
+          <Route path="/officeregister" element={<OfficerRegistration />} />
+          <Route path="/trackparcel" element={<TrackParcel />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/navigation" element={<Navigation />} />
+          <Route path="/getlocation" element={<SaveLocation />} />
+
+          <Route element={<SafeRoute />}>
+            <Route path="/bookservice" element={<DeliveryDetails />} />
+            <Route path="/complaintform" element={<ComplaintForm />} />
+            <Route path="/yourorders" element={<OrderDetails />} />
+            <Route path="/success" element={<SuccessPage />} />
+          </Route>
+
+          <Route element={<PrivateRoute />}>
+            <Route path="/officedashboard" element={<EmployeeDashboard />} />
+            <Route path="/book-parcel" element={<BookParcel />} />
+            {/* <Route path="/success" element={<SuccessPage />} /> */}
+            <Route path="/update-status" element={<UpdateStatus />} />
+            <Route path="/view-parcels" element={<ViewParcels />} />
+            <Route path="/ofd" element={<Ofd />} />
+            <Route path="/view-complaints" element={<ComplaintList />} />
+            <Route path="/modifyorder" element={<ModifyOrder />} />
+            <Route path="/success" element={<SuccessPage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </HelmetProvider>
+  );
+};
+
+export default App;
