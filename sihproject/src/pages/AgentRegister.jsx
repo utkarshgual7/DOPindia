@@ -9,6 +9,7 @@ const AgentRegister = () => {
     phone: "",
     address: "",
     servicePincode: "",
+    password: "", // Add password to the form data state
   });
   const [registeredAgent, setRegisteredAgent] = useState(null); // To store registered agent details
   const [error, setError] = useState("");
@@ -57,6 +58,7 @@ const AgentRegister = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                maxLength={10}
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Phone Number"
@@ -72,6 +74,18 @@ const AgentRegister = () => {
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Email"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                placeholder="Password"
               />
             </div>
             <div>
@@ -94,11 +108,11 @@ const AgentRegister = () => {
                 value={formData.servicePincode}
                 onChange={handleChange}
                 required
+                maxLength={6}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Service Pincode"
               />
             </div>
-            <div></div>
             <button
               type="submit"
               className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
@@ -123,7 +137,6 @@ const AgentRegister = () => {
             <p>
               <strong>Phone:</strong> {registeredAgent.phone}
             </p>
-
             <p>
               <strong>Address:</strong> {registeredAgent.address}
             </p>

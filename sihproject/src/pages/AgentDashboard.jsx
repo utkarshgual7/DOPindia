@@ -1,37 +1,49 @@
 import React, { useState, useRef, useEffect } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
+import Header from "../components/Header";
+import AgentNavbar from "../components/AgentNavbar";
 
-const AgentDashboardPage = () => {
+const ParcelScanForDelivery = () => {
   const [scannedData, setScannedData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isGalleryMode, setIsGalleryMode] = useState(false);
+  const [parsedData, setParsedData] = useState(null); // Parsed JSON data
+  const [error, setError] = useState(null); // Error state
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
   const codeReaderRef = useRef(null);
+  const detailsRef = useRef(null); // Ref for the details section
+  const [isScanning, setIsScanning] = useState(false); // State to track scanning status
 
-  // Function to handle the raw scan result
   const handleScan = (result) => {
     if (result) {
       const rawData = result.text;
       console.log("Raw QR Code Data:", rawData);
-      setScannedData(rawData); // Show raw data first
+      setScannedData(rawData);
 
-      // Check if the data is a URL
-      if (isURL(rawData)) {
-        alert("This QR code contains a URL: " + rawData);
-      } else {
-        // If not a URL, display it as plain text
-        alert("This QR code contains plain text or other data.");
+      try {
+        const parsed = JSON.parse(rawData); // Attempt to parse as JSON
+        setParsedData(parsed); // Set parsed data
+        setError(null); // Clear any error
+
+        // Scroll to the details section after successful scan
+        if (detailsRef.current) {
+          detailsRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Stop scanning after successful scan
+        stopScanning();
+      } catch (e) {
+        setParsedData(null);
+        setError("Failed to parse JSON data.");
       }
     }
   };
 
-  // Function to handle errors in the scanning process
   const handleError = (error) => {
     console.error("QR code scanner error:", error);
   };
 
-  // Function to handle file upload and scan the QR code from an image
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -47,26 +59,15 @@ const AgentDashboardPage = () => {
             .catch((err) => handleError(err));
         };
       };
-      reader.readAsDataURL(file); // Convert file to data URL
+      reader.readAsDataURL(file);
     }
   };
 
-  // Function to check if data is a URL
-  const isURL = (data) => {
-    const urlPattern = new RegExp(
-      "^(https?:\\/\\/)?" + // protocol
-        "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|" + // domain name
-        "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
-        "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
-        "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
-        "(\\#[-a-z\\d_]*)?$",
-      "i"
-    );
-    return !!urlPattern.test(data);
-  };
-
-  // Function to start scanning from the camera
   const startScanning = () => {
+    if (isScanning) return; // Prevent multiple scanning sessions
+    setIsScanning(true);
+    setIsLoading(true);
+
     const codeReader = new BrowserMultiFormatReader();
     codeReaderRef.current = codeReader;
 
@@ -88,41 +89,78 @@ const AgentDashboardPage = () => {
       });
   };
 
-  // Initialize the scanning process
-  useEffect(() => {
-    if (!isGalleryMode) {
-      const timer = setTimeout(() => {
-        startScanning();
-      }, 3000); // Start after a delay
+  const stopScanning = () => {
+    if (codeReaderRef.current) {
+      codeReaderRef.current.reset();
+      setIsScanning(false);
+      setIsLoading(false);
+    }
+  };
 
-      return () => {
-        clearTimeout(timer);
-        if (codeReaderRef.current) {
-          codeReaderRef.current.reset();
-        }
-      };
+  const toggleScannerMode = () => {
+    setIsGalleryMode(!isGalleryMode);
+    if (isGalleryMode) {
+      stopScanning();
+    } else {
+      setScannedData(null); // Clear scanned data when switching modes
+    }
+  };
+
+  useEffect(() => {
+    if (!isGalleryMode && isScanning) {
+      startScanning();
+    } else if (isGalleryMode) {
+      stopScanning();
     }
   }, [isGalleryMode]);
 
-  // Function to format plain text data
-  const formatPlainText = (data) => {
-    return data
-      .split("\n") // Split into lines
-      .filter((line) => line.trim() !== "") // Remove empty lines
-      .map((line, index) => (
-        <div key={index} className="mb-2">
-          <span className="font-semibold">{`Line ${index + 1}: `}</span>
-          <span>{line}</span>
-        </div>
-      ));
+  const displayDataInCard = (data) => {
+    if (!data || typeof data !== "object") return null;
+
+    return (
+      <div>
+        {data.parcels && data.parcels.length > 0 ? (
+          data.parcels.map((parcel, index) => (
+            <div
+              key={index}
+              className="bg-white border border-gray-300 shadow-lg rounded-lg p-4 mb-4"
+            >
+              <h4 className="text-lg font-semibold mb-2">Parcel Details</h4>
+              <p className="font-semibold text-gray-700">Tracking ID:</p>
+              <p className="text-gray-600">{parcel.trackingId}</p>
+              <p className="font-semibold text-gray-700">Recipient Name:</p>
+              <p className="text-gray-600">{parcel.recipientName}</p>
+              <p className="font-semibold text-gray-700">Recipient Address:</p>
+              <p className="text-gray-600">{parcel.recipientAddress}</p>
+              <p className="font-semibold text-gray-700">
+                Recipient Contact Number:
+              </p>
+              <p className="text-gray-600">{parcel.recipientContactNumber}</p>
+              <p className="font-semibold text-gray-700">Recipient Pincode:</p>
+              <p className="text-gray-600">{parcel.recipientPincode}</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-600">No parcels found.</p>
+        )}
+        {data.agentName && (
+          <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-4 mt-4">
+            <h4 className="text-lg font-semibold mb-2">Agent Details</h4>
+            <p className="font-semibold text-gray-700">Agent Name:</p>
+            <p className="text-gray-600">{data.agentName}</p>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+      <AgentNavbar />
       <h1 className="text-3xl font-bold text-center mt-24 mb-6 text-gray-700">
         Agent Dashboard
       </h1>
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6 w-full max-w-md">
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-6 w-full max-w-lg">
         <h2 className="text-xl font-semibold mb-4">Scan QR Code</h2>
         <div className="flex justify-center mb-4">
           <button
@@ -159,22 +197,26 @@ const AgentDashboardPage = () => {
             <video ref={videoRef} style={{ width: "100%", height: "auto" }} />
           </div>
         )}
+
+        <button
+          onClick={startScanning}
+          className={`mt-4 p-2 rounded ${
+            isScanning ? "bg-gray-300" : "bg-blue-500 text-white"
+          }`}
+          disabled={isScanning}
+        >
+          {isScanning ? "Scanning..." : "Start Scanning"}
+        </button>
+
         {scannedData && (
-          <div className="mt-6">
+          <div className="mt-6" ref={detailsRef}>
             <h3 className="text-lg font-semibold mb-2">Scanned Data:</h3>
-            <div className="bg-gray-100 p-4 rounded">
-              {formatPlainText(scannedData)}
-            </div>
-            {isURL(scannedData) && (
-              <a
-                href={scannedData}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline mt-4 block"
-              >
-                Visit URL
-              </a>
+            {parsedData ? (
+              displayDataInCard(parsedData) // Show parsed data in card format
+            ) : (
+              <p className="text-gray-600">{scannedData}</p> // Plain text fallback
             )}
+            {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
           </div>
         )}
       </div>
@@ -182,4 +224,4 @@ const AgentDashboardPage = () => {
   );
 };
 
-export default AgentDashboardPage;
+export default ParcelScanForDelivery;

@@ -2,6 +2,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import clientReducer from './client/clientSlice.js';
 import { persistReducer, persistStore } from 'redux-persist';
 import officerReducer from './officer/officerSlice.js';
+import agentReducer from './agent/agentSlice.js';
 
 import storage from 'redux-persist/lib/storage';
 import cartReducer from "./cart/cartSlice.js"
@@ -13,6 +14,7 @@ import cartReducer from "./cart/cartSlice.js"
 const rootReducer = combineReducers({
   client: clientReducer,
   officer:officerReducer,
+  agent:agentReducer,
   cart: cartReducer,
  
 });

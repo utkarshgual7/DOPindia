@@ -18,6 +18,17 @@ const agentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  password: {
+    type: String,
+    required: true,
+ 
+  },
+  email :{
+    type: String,
+    required: true,
+    unique: true,
+  },
+  profilePicture:{ type: String, default: "https://img.icons8.com/color/48/customer-skin-type-7.png"},
   agentId: {
     type: String,
     required: true,

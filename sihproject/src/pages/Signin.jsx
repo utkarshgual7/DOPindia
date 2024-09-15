@@ -185,6 +185,16 @@ function Signin() {
                   Employee Login
                 </a>
               </p>
+
+              <p className="text-lg rounded-md my-2 px-2 py-2 bg-blue-300 font-semibold ">
+                <a
+                  href="/agentlogin"
+                  className="text-gray-900  hover:underline"
+                >
+                  Delivery Agent Login
+                </a>
+              </p>
+
               <IntroText />
             </div>
           </div>

@@ -31,6 +31,10 @@ import SaveLocation from "./pages/SaveLocation.jsx";
 import Services from "./pages/Services.jsx";
 import AgentRegister from "./pages/AgentRegister.jsx";
 import AgentDashboardPage from "./pages/AgentDashboard.jsx";
+import AgentHome from "./pages/AgentHome.jsx";
+import ParcelScanForDelivery from "./pages/AgentDashboard.jsx";
+import AgentLogin from "./pages/AgentLogin.jsx";
+import AgentProtectedRoute from "./components/AgentProtectedRoute.jsx";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -62,6 +66,7 @@ const App = () => {
           <Route path="/navigation" element={<Navigation />} />
           <Route path="/getlocation" element={<SaveLocation />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/agentlogin" element={<AgentLogin />} />
 
           <Route element={<SafeRoute />}>
             <Route path="/bookservice" element={<DeliveryDetails />} />
@@ -81,7 +86,14 @@ const App = () => {
             <Route path="/modifyorder" element={<ModifyOrder />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/agentregister" element={<AgentRegister />} />
-            <Route path="/agentdashboard" element={<AgentDashboardPage />} />
+          </Route>
+          <Route element={<AgentProtectedRoute />}>
+            <Route path="/agentdashboard" element={<AgentHome />} />
+
+            <Route
+              path="/parcelscanfordelivery"
+              element={<ParcelScanForDelivery />}
+            />
           </Route>
         </Routes>
       </Router>

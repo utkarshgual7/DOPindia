@@ -87,18 +87,26 @@ const ArrivedAtStationPage = () => {
         selectedParcels.includes(parcel.trackingId)
       );
 
-      // Generate QR Code data with assigned parcels details
-      const qrData = assignedParcelDetails
-        .map(
-          (parcel) =>
-            `Tracking ID: ${parcel.trackingId}, Recipient Name: ${parcel.recipientName}, Address: ${parcel.recipientAddress},Contact: ${parcel.recipientContactNumber}, Pincode: ${parcel.recipientPincode}`
-        )
-        .join("\n");
+      // Generate QR Code data with assigned parcels details in JSON format
+      const generateQrCodeData = () => {
+        const data = {
+          agentName: selectedAgent,
+          parcels: assignedParcelDetails.map((parcel) => ({
+            trackingId: parcel.trackingId,
+            recipientName: parcel.recipientName,
+            recipientAddress: parcel.recipientAddress,
+            recipientContactNumber: parcel.recipientContactNumber,
+            recipientPincode: parcel.recipientPincode,
+          })),
+        };
 
+        return JSON.stringify(data);
+      };
+
+      const qrData = generateQrCodeData();
       setQrCodeData(qrData);
       alert("Parcels assigned to agent successfully!");
 
-      // Store assignment in the database (server-side)
       // Refresh parcels list
       fetchParcels(selectedAgent);
       setSelectedParcels([]);

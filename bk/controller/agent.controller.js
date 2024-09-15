@@ -1,4 +1,5 @@
 // controllers/agentController.js
+import jwt from 'jsonwebtoken';
 
 import Agent from "../model/agent.model.js";
 import { uuid } from 'uuidv4';
@@ -11,7 +12,7 @@ const generateAgentId = () => {
 // Register Agent Controller
 export async function registerAgent(req, res) {
     try {
-        const { name, phone, address, email, servicePincode } = req.body;
+        const { name, phone, address, email, servicePincode,password } = req.body;
     
         // Check if email already exists
         let agent = await Agent.findOne({ email });
@@ -29,6 +30,7 @@ export async function registerAgent(req, res) {
           address,
           email,
           servicePincode,
+          password,
           agentId, // Assign generated agentId
         });
     
@@ -84,5 +86,45 @@ export const assignParcelsToAgent = async (req, res) => {
   } catch (error) {
     console.error("Error assigning parcels", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+export const agentLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required.' });
+  }
+
+  try {
+    // Find the agent by email
+    const agent = await Agent.findOne({ email });
+
+    if (!agent) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: agent._id, email: agent.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '8h' } // Token expiration time
+    );
+
+    // Send the response with the token and agent data
+    return res.json({
+      token,
+      agentId: agent.agentId,
+      email: agent.email,
+      name: agent.name,
+      servicePincode: agent.servicePincode,
+      profilePicture: agent.profilePicture, // Include any additional agent data you need
+      // Include any additional agent data you need
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };

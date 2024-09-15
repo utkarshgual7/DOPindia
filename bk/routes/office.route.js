@@ -2,7 +2,7 @@
 import express from 'express';
 
 import { loginofficer, registerOfficer } from '../controller/officer.controller.js';
-import { getAgents, registerAgent } from '../controller/agent.controller.js';
+import { agentLogin, getAgents, registerAgent } from '../controller/agent.controller.js';
 
 
 const officeRoutes = express.Router();
@@ -12,6 +12,7 @@ officeRoutes.post('/register', registerOfficer);
 officeRoutes.post('/login', loginofficer);
 officeRoutes.post('/agentregister', registerAgent);
 officeRoutes.get('/agents',getAgents);
+officeRoutes.post('/agentlogin',agentLogin);
 
 
 
