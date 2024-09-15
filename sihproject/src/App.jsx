@@ -29,6 +29,7 @@ import OrderDetails from "./pages/OrderDetails.jsx";
 import Navigation from "./pages/Navigation.jsx";
 import SaveLocation from "./pages/SaveLocation.jsx";
 import Services from "./pages/Services.jsx";
+import AgentRegister from "./pages/AgentRegister.jsx";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/view-complaints" element={<ComplaintList />} />
             <Route path="/modifyorder" element={<ModifyOrder />} />
             <Route path="/success" element={<SuccessPage />} />
+            <Route path="/agentregister" element={<AgentRegister />} />
           </Route>
         </Routes>
       </Router>

@@ -69,7 +69,7 @@ const Header = () => {
       }`}
     >
       <div className="flex items-center justify-between px-5 lg:px-7.5 xl:px-10 max-lg:py-0">
-        <Link className="block w-[18rem] xl:mr-8" to="/">
+        <Link className="block w-[18rem] xl:mr-8" to="/officedashboard">
           <img
             src={getImageUrl("Logo/logom.png")}
             className="w-[100px] max-md:w-[100px]"
@@ -108,6 +108,12 @@ const Header = () => {
               <li className="lg:hover:text-n-1">
                 <Link to="/trackparcel" onClick={handleClick}>
                   {t("navbar.serviceMyDevice", "Track Parcel")}
+                </Link>
+              </li>
+
+              <li className="lg:hover:text-n-1">
+                <Link to="/agentregister" onClick={handleClick}>
+                  Agent Register
                 </Link>
               </li>
               {!currentOfficer ? (
