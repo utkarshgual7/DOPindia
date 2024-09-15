@@ -195,8 +195,8 @@ export const changeParcelStatus = async (req, res) => {
     sendMail(recipientEmail, "Parcel Status Update", "", recParcelUpdate(recipientName, trackingId, status));
 
     // Send SMS notifications
-    notifyUser(smsFeature, senderPhone, { trackingNumber: trackingId });
-    notifyUser(smsFeature, recipientPhone, { trackingNumber: trackingId });
+    // notifyUser(smsFeature, senderPhone, { trackingNumber: trackingId });
+    // notifyUser(smsFeature, recipientPhone, { trackingNumber: trackingId });
 
   
 

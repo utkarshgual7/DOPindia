@@ -2,6 +2,7 @@
 
 import Agent from "../model/agent.model.js";
 import { uuid } from 'uuidv4';
+import Parcel from "../model/parcel.model.js";
 
 const generateAgentId = () => {
   return Math.floor(10000000 + Math.random() * 90000000); // Generates a random 8-digit number
@@ -58,3 +59,30 @@ export async function registerAgent(req, res) {
         res.status(500).json({ message: 'Internal Server Error', error });
       }
     };
+
+
+import parcelAssign from "../model/parcelAssign.model.js";
+
+// Assign parcels to a delivery agent
+export const assignParcelsToAgent = async (req, res) => {
+  const { trackingIds, agentId } = req.body;
+
+  if (!Array.isArray(trackingIds) || trackingIds.length === 0 ) {
+    return res.status(400).json({ error: "Invalid request data" });
+  }
+
+  try {
+    // Create assignments for each tracking ID
+    const assignments = trackingIds.map(trackingId => ({
+      TrackingId: trackingId,
+      agentId,
+    }));
+
+    await parcelAssign.insertMany(assignments);
+
+    res.status(200).json({ message: "Parcels assigned successfully" });
+  } catch (error) {
+    console.error("Error assigning parcels", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
