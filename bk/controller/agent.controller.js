@@ -47,3 +47,14 @@ export async function registerAgent(req, res) {
         res.status(500).json({ message: 'Server error', error: error.message });
       }
     };
+
+
+    export const getAgents = async (req, res) => {
+      try {
+        const Agents = await Agent.find();
+        res.status(200).json(Agents);
+      } catch (error) {
+        console.error('Error fetching Agents:', error);
+        res.status(500).json({ message: 'Internal Server Error', error });
+      }
+    };
