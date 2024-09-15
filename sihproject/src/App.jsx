@@ -35,6 +35,7 @@ import AgentHome from "./pages/AgentHome.jsx";
 import ParcelScanForDelivery from "./pages/AgentDashboard.jsx";
 import AgentLogin from "./pages/AgentLogin.jsx";
 import AgentProtectedRoute from "./components/AgentProtectedRoute.jsx";
+import NoPage from "./pages/NoPage.jsx";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -56,6 +57,8 @@ const App = () => {
       <Router>
         <ScrollToTop />
         <Routes>
+          <Route path="*" element={<NoPage />} />
+
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<CreateAccount />} />
           <Route path="/" element={<Home />} />

@@ -19,12 +19,13 @@ const AgentHome = () => {
       name: "Pickup Parcels",
       backgroundImage: "https://i.ibb.co/YyM0LVm/trackpngwing-com-2.png",
       buttonImage: "https://img.icons8.com/color/48/route.png",
-      link: "/trackparcel",
+      link: "/pickup",
     },
     {
       id: 3,
-      name: "Modify your orders",
-      backgroundImage: "https://i.ibb.co/VTXrmtN/modifypngwing-com-2.png",
+      name: "Start Delivering",
+      backgroundImage:
+        "https://i.ibb.co/7112Sh1/istockphoto-1434715649-612x612.jpg",
       buttonImage: "https://i.ibb.co/cT9xYwX/icons8-edit-property-48.png",
       link: "/yourorders",
     },
