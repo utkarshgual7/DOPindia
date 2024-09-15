@@ -28,6 +28,7 @@ import SafeRoute from "./components/SafeRoute.jsx";
 import OrderDetails from "./pages/OrderDetails.jsx";
 import Navigation from "./pages/Navigation.jsx";
 import SaveLocation from "./pages/SaveLocation.jsx";
+import Services from "./pages/Services.jsx";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -58,6 +59,7 @@ const App = () => {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/navigation" element={<Navigation />} />
           <Route path="/getlocation" element={<SaveLocation />} />
+          <Route path="/services" element={<Services />} />
 
           <Route element={<SafeRoute />}>
             <Route path="/bookservice" element={<DeliveryDetails />} />

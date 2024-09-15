@@ -12,8 +12,8 @@ const EmployeeDashboard = () => {
         </h1>
 
         {/* Navigation Menu */}
-        <div className="bg-gray-100 shadow-md rounded-lg p-6 mb-8 max-w-md mx-auto">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="bg-gray-100 shadow-md rounded-lg p-6 mb-8 max-w-full lg:max-w-md mx-auto">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
             <Link
               to="/book-parcel"
               className="py-2 px-4 text-center rounded-md bg-red-400 text-white hover:bg-red-600"
@@ -32,7 +32,6 @@ const EmployeeDashboard = () => {
             >
               View Booked Parcels
             </Link>
-
             <Link
               to="/ofd"
               className="py-2 px-4 text-center rounded-md bg-red-400 text-white hover:bg-red-600"

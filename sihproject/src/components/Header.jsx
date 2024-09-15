@@ -100,7 +100,7 @@ const Header = () => {
               )}
 
               <li className="lg:hover:text-n-1">
-                <a href="/forum" onClick={handleClick}>
+                <a href="/services" onClick={handleClick}>
                   {t("navbar.forum", "Services")}
                 </a>
               </li>

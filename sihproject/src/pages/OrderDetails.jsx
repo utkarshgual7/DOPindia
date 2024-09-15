@@ -134,9 +134,9 @@ const OrderDetails = () => {
                       {order.deliveryTimeFrame}
                       <button
                         onClick={() => handleModify(order)}
-                        className="ml-4 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        className="ml-3 my-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                       >
-                        Modify
+                        Modify DeliveryTime
                       </button>
                     </p>
                     <p>

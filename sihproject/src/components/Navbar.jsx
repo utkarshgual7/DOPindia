@@ -83,8 +83,8 @@ const Navbar = () => {
             openNavigation ? "flex" : "hidden"
           } fixed top-0 left-0 right-0 bottom-0 bg-n-8 lg:static lg:flex lg:mx-auto lg:bg-transparent`}
         >
-          <div className="flex flex-col items-center justify-center w-full h-full lg:flex-row lg:items-center lg:justify-center lg:w-auto lg:h-auto">
-            <ul className="flex flex-col items-center space-y-6 font-code text-2xl uppercase text-n-1 transition-colors px-6 py-6 md:py-8 lg:flex-row lg:space-y-0 lg:space-x-8 lg:px-0 lg:py-0 lg:text-base lg:font-semibold lg:text-n-1/50">
+          <div className="flex flex-col items-center bg-white justify-center w-full h-full lg:flex-row lg:items-center lg:justify-center lg:w-auto lg:h-auto">
+            <ul className="flex flex-col items-center space-y-4 text-2xl uppercase text-n-1 transition-colors px-6 py-6 md:py-8 lg:flex-row lg:space-y-0 lg:space-x-8 lg:px-0 lg:py-0 lg:text-base lg:font-semibold lg:text-n-1/50">
               {currentClient ? (
                 <li className="lg:hover:text-n-1">
                   <a href="/" onClick={handleClick}>
@@ -100,7 +100,7 @@ const Navbar = () => {
               )}
 
               <li className="lg:hover:text-n-1">
-                <a href="/forum" onClick={handleClick}>
+                <a href="/services" onClick={handleClick}>
                   {t("navbar.forum", "Services")}
                 </a>
               </li>
@@ -110,6 +110,7 @@ const Navbar = () => {
                   {t("navbar.serviceMyDevice", "Track Parcel")}
                 </Link>
               </li>
+
               {!currentClient ? (
                 <>
                   <li className="lg:hover:text-n-1">
@@ -128,7 +129,9 @@ const Navbar = () => {
                   </li>
                 </>
               ) : (
-                <li className="lg:hover:text-n-1"></li>
+                <li className="lg:hover:text-n-1">
+                  <Button onClick={handleLogout}>LOGOUT</Button>
+                </li>
               )}
             </ul>
           </div>

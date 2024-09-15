@@ -172,7 +172,7 @@ const SenderDetails = ({ onDataChange, onNext }) => {
 
   return (
     <div
-      className="relative min-h-screen bg-cover bg-center"
+      className="relative min-h-screen bg-cover mt-[100px] bg-center"
       style={{
         backgroundImage:
           "url(https://i.ibb.co/R219RsF/e89fbdd32457b4b6ab130b17109f2c05.png)",
@@ -181,8 +181,8 @@ const SenderDetails = ({ onDataChange, onNext }) => {
       <h1 className="text-4xl font-bold leading-none text-center bg-clip-text text-transparent bg-gradient-to-r from-[#f57070] to-[#BE1515]">
         Kindly Fill in Sender Details
       </h1>
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col w-full outline-dotted mt-3 bg-gradient-to-r from-[#f57070] to-[#922a2a] lg:w-6/12 max-w-4xl rounded-[20px] shadow-md p-8">
+      <div className="items-center justify-center mt-2 min-h-screen">
+        <div className="flex flex-col w-full outline-dotted bg-gradient-to-r from-[#f57070] to-[#922a2a] lg:w-6/12 max-w-4xl rounded-[20px] shadow-md p-8">
           <div className="flex flex-col gap-6">
             <input
               type="text"
@@ -274,6 +274,7 @@ const RecipientDetails = ({ onDataChange, onNext, onPrevious }) => {
     recipientPincode: "",
     recipientContactNumber: "",
     recipientEmail: "",
+    deliveryTimeFrame: "",
   });
 
   const [previousTimeFrame, setPreviousTimeFrame] = useState("");
@@ -538,7 +539,6 @@ const AdditionalDetails = ({ onDataChange, onNext, onPrevious }) => {
     content: "",
     category: "",
     weight: "",
-    deliveryTimeFrame: "",
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -627,7 +627,7 @@ const AdditionalDetails = ({ onDataChange, onNext, onPrevious }) => {
 
 const Confirmation = ({ data, onSubmit, onPrevious }) => {
   return (
-    <div className="flex flex-col lg:flex-row w-full">
+    <div className="flex flex-col mt-16 lg:flex-row w-full">
       {/* Left Section */}
       <div className="flex flex-col w-full lg:w-7/12 p-4">
         <h2 className="text-lg font-semibold mb-4">Confirm Your Details</h2>

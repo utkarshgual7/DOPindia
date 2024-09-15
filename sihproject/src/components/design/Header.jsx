@@ -28,24 +28,5 @@ export const BackgroundCircles = () => {
 };
 
 export const HamburgerMenu = () => {
-  return (
-    <div className="absolute inset-0 pointer-events-none lg:hidden">
-      <div className="absolute top-[4.4rem] left-16 w-[100px] origin-center rotate-[-10deg]">
-        <img
-          src={getImageUrl("Navbar/ramdesign.svg")}
-          width={688}
-          height={953}
-          alt="Ram design Background"
-        />
-      </div>
-      <div className="absolute top-[35rem] right-10 w-[100px] origin-center rotate-1">
-        <img
-          src={getImageUrl("Navbar/gpudesign.svg")}
-          width={688}
-          height={953}
-          alt="Background"
-        />
-      </div>
-    </div>
-  );
+  return <div className="absolute inset-0 pointer-events-none lg:hidden"></div>;
 };

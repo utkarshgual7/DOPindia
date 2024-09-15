@@ -17,7 +17,7 @@ const parcelBookingMail = (senderName, trackingId) => `
     .container {
       max-width: 600px;
       margin: 0 auto;
-      background: #000;
+      background: #fff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
