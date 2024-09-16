@@ -17,8 +17,8 @@ const ParcelAssignmentSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['Assigned', 'Delivered'],
-    default: 'Assigned',
+    enum: ['Assigned', 'Delivered','Not Assigned'],
+    default: 'Not Assigned',
   },
   assignedAt: {
     type: Date,

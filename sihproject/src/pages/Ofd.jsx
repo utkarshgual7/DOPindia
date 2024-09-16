@@ -8,6 +8,7 @@ const ArrivedAtStationPage = () => {
   const [agents, setAgents] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [deliveryTimeFrame, setDeliveryTimeFrame] = useState("");
   const [qrCodeData, setQrCodeData] = useState(null);
 
   // Fetch delivery agents
@@ -26,7 +27,22 @@ const ArrivedAtStationPage = () => {
     try {
       const response = await fetch(`/api/parcel/getparcels`);
       const data = await response.json();
-      setParcels(data.filter((parcel) => parcel.status === "Out for Delivery"));
+      const parcelsWithStatus = await Promise.all(
+        data
+          .filter((parcel) => parcel.status === "Out for Delivery")
+          .filter((parcel) =>
+            deliveryTimeFrame
+              ? parcel.deliveryTimeFrame === deliveryTimeFrame
+              : true
+          )
+          .map(async (parcel) => {
+            const parcelAssignmentStatus = await fetchParcelAssignmentStatus(
+              parcel.trackingId
+            );
+            return { ...parcel, parcelAssignmentStatus };
+          })
+      );
+      setParcels(parcelsWithStatus);
     } catch (error) {
       console.error("Error fetching parcels", error);
     }
@@ -36,9 +52,32 @@ const ArrivedAtStationPage = () => {
     fetchAgents();
   }, []);
 
+  useEffect(() => {
+    if (selectedAgent) {
+      fetchParcels(selectedAgent);
+    }
+  }, [deliveryTimeFrame, selectedAgent]);
+
+  const deliveryTimeFrames = [
+    "11:00-12:00",
+    "12:00-14:00",
+    "12:00-13:00",
+    "14:00-16:00",
+    "14:00-15:00",
+    "13:00-14:00",
+    "15:00-16:00",
+    "16:00-17:00",
+    "18:00-19:00",
+    "17:00-18:00",
+    "19:00-20:00",
+  ];
+
+  const handleDeliveryTimeFrameChange = (e) => {
+    setDeliveryTimeFrame(e.target.value);
+  };
+
   const handleAgentSelection = (agentId) => {
     setSelectedAgent(agentId);
-    fetchParcels(agentId);
     setSelectedParcels([]);
   };
 
@@ -66,6 +105,21 @@ const ArrivedAtStationPage = () => {
     parcel.recipientAddress.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Fetching the parcel assignment status
+  const fetchParcelAssignmentStatus = async (trackingId) => {
+    try {
+      const response = await fetch(`/api/parcel/assignstatus/${trackingId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch assignment status");
+      }
+      const data = await response.json();
+      return data.status;
+    } catch (error) {
+      console.error("Error fetching assignment status:", error);
+      return "Error fetching status";
+    }
+  };
+
   const handleAssignParcels = async () => {
     try {
       const response = await fetch("/api/parcel/assign-parcels", {
@@ -90,7 +144,7 @@ const ArrivedAtStationPage = () => {
       // Generate QR Code data with assigned parcels details in JSON format
       const generateQrCodeData = () => {
         const data = {
-          agentName: selectedAgent,
+          agentName: agents.find((agent) => agent.id === selectedAgent)?.name,
           parcels: assignedParcelDetails.map((parcel) => ({
             trackingId: parcel.trackingId,
             recipientName: parcel.recipientName,
@@ -122,8 +176,6 @@ const ArrivedAtStationPage = () => {
         Assign Parcels to Delivery Agent
       </h1>
 
-      {/* Search Bar */}
-
       {/* Agents List */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Select a Delivery Agent</h2>
@@ -140,6 +192,7 @@ const ArrivedAtStationPage = () => {
           ))}
         </select>
       </div>
+
       <input
         type="text"
         placeholder="Search by recipient address"
@@ -148,11 +201,29 @@ const ArrivedAtStationPage = () => {
         className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-md"
       />
 
-      {/* Parcels List (Out for Delivery) */}
+      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">
+          Filter by Delivery Time Frame
+        </h2>
+        <select
+          value={deliveryTimeFrame}
+          onChange={handleDeliveryTimeFrameChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md"
+        >
+          <option value="">-- Select Time Frame --</option>
+          {deliveryTimeFrames.map((timeFrame, index) => (
+            <option key={index} value={timeFrame}>
+              {timeFrame}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Parcels List */}
       {selectedAgent && (
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">
-            Parcels Out for Delivery for{" "}
+            Parcels Out for Delivery with agent{" "}
             {agents.find((agent) => agent.id === selectedAgent)?.name}
           </h2>
           <div className="flex justify-between items-center mb-4">
@@ -193,36 +264,36 @@ const ArrivedAtStationPage = () => {
                     <p>
                       <strong>Pincode:</strong> {parcel.recipientPincode}
                     </p>
+                    <p>
+                      <strong>Delivery Timeframe:</strong>{" "}
+                      {parcel.deliveryTimeFrame}
+                    </p>
+                    <p className="text-blue-600">
+                      <strong>Status:</strong> {parcel.parcelAssignmentStatus}
+                    </p>
                   </div>
                 </div>
               ))
             ) : (
-              <p>No parcels available for this agent.</p>
+              <p>No parcels found for the selected agent and filters.</p>
             )}
           </div>
 
-          <div className="mt-4">
+          {selectedParcels.length > 0 && (
             <button
               onClick={handleAssignParcels}
-              disabled={selectedParcels.length === 0}
-              className={`mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md ${
-                selectedParcels.length === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4"
             >
               Assign Selected Parcels
-              {agents.find((agent) => agent.agentId === selectedAgent)?.name}
             </button>
-          </div>
+          )}
         </div>
       )}
 
-      {/* Display QR Code if available */}
       {qrCodeData && (
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6 text-center">
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">
-            QR Code for Assigned Parcels
+            Assigned Parcels QR Code
           </h2>
           <QRCode value={qrCodeData} />
         </div>

@@ -89,6 +89,20 @@ const ParcelScanForDelivery = () => {
       });
   };
 
+  const fetchParcelAssignmentStatus = async (trackingId) => {
+    try {
+      const response = await fetch(`/api/parcelassignments/${trackingId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch assignment status");
+      }
+      const data = await response.json();
+      return data.status; // Assuming the API returns { status: "Assigned" }
+    } catch (error) {
+      console.error("Error fetching assignment status:", error);
+      return "Error fetching status"; // Fallback in case of error
+    }
+  };
+
   const stopScanning = () => {
     if (codeReaderRef.current) {
       codeReaderRef.current.reset();

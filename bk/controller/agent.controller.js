@@ -128,3 +128,21 @@ export const agentLogin = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+export const getParcelAssignStatus = async (req, res) => {
+  const { TrackingId } = req.params;
+
+  try {
+    const parcelAssignment = await parcelAssign.findOne({ TrackingId });
+
+    if (!parcelAssignment) {
+      return res.status(404).json({ message: 'Parcel not found' });
+    }
+
+    res.status(200).json({ status: parcelAssignment.status });
+  } catch (error) {
+    console.error('Error fetching parcel status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

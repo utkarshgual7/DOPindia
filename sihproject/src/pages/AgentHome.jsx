@@ -43,8 +43,8 @@ const AgentHome = () => {
       <AgentNavbar />
 
       {/* Card Section */}
-      <section className="mt-16 w-full max-w-screen-xl mx-auto max-md:mt-10">
-        <div className="grid grid-cols-4 gap-6 max-md:grid-cols-2">
+      <section className=" w-full max-w-screen-xl mx-auto max-md:mt-10">
+        <div className="grid grid-cols-4 gap-6 mt-[100px] max-md:grid-cols-2">
           {services.map((service) => (
             <a
               key={service.id}
