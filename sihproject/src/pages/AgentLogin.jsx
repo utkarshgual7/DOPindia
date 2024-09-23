@@ -64,9 +64,9 @@ const AgentLogin = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
       <AgentNavbar />
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Delivery Agent Login
+          Indiapost Postman Login
         </h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {message && !error && (
@@ -100,7 +100,7 @@ const AgentLogin = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 ${
+            className={`w-full py-2 bg-gray-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 ${
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >

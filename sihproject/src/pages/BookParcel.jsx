@@ -247,6 +247,7 @@ const RecipientDetails = ({ onDataChange, onNext, onPrevious }) => {
     recipientPincode: "",
     recipientContactNumber: "",
     recipientEmail: "",
+    deliveryTimeFrame: "",
   });
   const [states] = useState([
     {
@@ -287,6 +288,8 @@ const RecipientDetails = ({ onDataChange, onNext, onPrevious }) => {
   ]);
 
   const [districts, setDistricts] = useState([]);
+  const [previousTimeFrame, setPreviousTimeFrame] = useState("");
+  const [predictedTimeFrame, setPredictedTimeFrame] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -305,6 +308,57 @@ const RecipientDetails = ({ onDataChange, onNext, onPrevious }) => {
 
   const handlePrevious = () => {
     onPrevious();
+  };
+  const handlePredictTime = async () => {
+    const email = formData.recipientEmail;
+
+    try {
+      // Fetch all the delivery time frames from MongoDB for this email
+      const timeFrameResponse = await fetch(`/api/parcel/timeframes/${email}`);
+      const timeFrameData = await timeFrameResponse.json();
+
+      if (timeFrameResponse.ok && timeFrameData.timeFrames.length > 0) {
+        // Combine all time frames into a single string, separated by '%'
+        const combinedTimeFrames = timeFrameData.timeFrames.join("%");
+
+        // Send the combined time frames to the AI model for prediction
+        const aiResponse = await fetch(
+          `https://time-prediction-model.onrender.com/predict/${combinedTimeFrames}`
+        );
+        const aiData = aiResponse;
+        console.log(aiData);
+
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json(); // Parse JSON response
+
+          if (aiData && aiData.predicted_time) {
+            const trimmedTimeFrame = aiData.predicted_time.trim(); // Remove
+            setPredictedTimeFrame(trimmedTimeFrame); // Store the cleaned
+            setFormData((prev) => ({
+              ...prev,
+              deliveryTimeFrame: trimmedTimeFrame,
+            }));
+          } else {
+            console.error(
+              "Prediction response is missing 'predicted_time':",
+              aiData
+            );
+          }
+        } else {
+          console.error(
+            "Error fetching prediction from AI model:",
+            aiResponse.statusText
+          );
+        }
+      } else {
+        console.error(
+          "No time frames found or error fetching data:",
+          timeFrameData.message
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching time frames or AI prediction:", error);
+    }
   };
 
   return (
@@ -379,6 +433,32 @@ const RecipientDetails = ({ onDataChange, onNext, onPrevious }) => {
           onChange={handleChange}
           className="w-full px-4 py-2 border border-gray-300 rounded-md"
         />
+        <select
+          name="deliveryTimeFrame"
+          value={
+            formData.deliveryTimeFrame ||
+            previousTimeFrame ||
+            predictedTimeFrame
+          }
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md"
+        >
+          <option value="">Select Delivery Time Frame</option>
+          <option value="11:00-12:00">11AM-12PM</option>
+          <option value="12:00-14:00">12PM-2PM</option>
+          <option value="14:00-16:00">2PM-4PM</option>
+          <option value="16:00-17:00">4PM-5PM</option>
+          <option value="17:00-18:00">5PM-6PM</option>
+          <option value="18:00-19:00">6PM-7PM</option>
+        </select>
+
+        {/* New Predict Time Button */}
+        <button
+          onClick={handlePredictTime}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md mt-2"
+        >
+          Predict Delivery Time
+        </button>
         <div className="flex justify-between">
           <button
             onClick={handlePrevious}
@@ -403,7 +483,6 @@ const AdditionalDetails = ({ onDataChange, onNext, onPrevious }) => {
     content: "",
     category: "",
     weight: "",
-    deliveryTimeFrame: "",
   });
 
   const handleChange = (e) => {
@@ -457,19 +536,7 @@ const AdditionalDetails = ({ onDataChange, onNext, onPrevious }) => {
         <option value="2.0-4.0">2kg-4kg</option>
         <option value=">5.0">More than 5Kg</option>
       </select>
-      <select
-        name="deliveryTimeFrame"
-        value={formData.deliveryTimeFrame}
-        onChange={handleChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md"
-      >
-        <option value="">Select Delivery Time Frame</option>
-        <option value="11:00-12:00">11AM-12PM</option>
-        <option value="12:00-14:00">12PM-2PM</option>
-        <option value="14:00-16:00">2PM-4PM</option>
-        <option value="16:00-17:00">4PM-5PM</option>
-        <option value="18:00-19:00">6PM-7pm</option>
-      </select>
+
       <div className="flex justify-between">
         <button
           onClick={handlePrevious}

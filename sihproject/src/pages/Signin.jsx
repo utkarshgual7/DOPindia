@@ -191,7 +191,7 @@ function Signin() {
                   href="/agentlogin"
                   className="text-gray-900  hover:underline"
                 >
-                  Delivery Agent Login
+                  Postman Login
                 </a>
               </p>
 
