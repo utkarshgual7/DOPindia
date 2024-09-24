@@ -66,28 +66,59 @@ export async function registerAgent(req, res) {
 import parcelAssign from "../model/parcelAssign.model.js";
 
 // Assign parcels to a delivery agent
+// Assign parcels to a delivery agent
 export const assignParcelsToAgent = async (req, res) => {
-  const { trackingIds, agentId } = req.body;
+  const { trackingIds, agentId, status } = req.body;
 
-  if (!Array.isArray(trackingIds) || trackingIds.length === 0 ) {
+  if (!Array.isArray(trackingIds) || trackingIds.length === 0 || !agentId) {
     return res.status(400).json({ error: "Invalid request data" });
   }
 
   try {
-    // Create assignments for each tracking ID
-    const assignments = trackingIds.map(trackingId => ({
-      TrackingId: trackingId,
-      agentId,
-    }));
+    // Check for parcels already assigned to the same agent
+    const alreadyAssignedParcels = await parcelAssign.find({
+      TrackingId: { $in: trackingIds },
+      agentId: agentId
+    });
 
-    await parcelAssign.insertMany(assignments);
+    if (alreadyAssignedParcels.length > 0) {
+      // Extract tracking IDs of already assigned parcels
+      const assignedTrackingIds = alreadyAssignedParcels.map(parcel => parcel.TrackingId);
+      return res.status(200).json({
+        message: "Some parcels are already assigned to the selected agent",
+        alreadyAssigned: assignedTrackingIds
+      });
+    }
 
-    res.status(200).json({ message: "Parcels assigned successfully" });
+    // Check if the parcel is assigned to another agent and update agentId if different
+    const updatedParcels = await parcelAssign.updateMany(
+      { TrackingId: { $in: trackingIds }, agentId: { $ne: agentId } }, // Find parcels assigned to a different agent
+      { $set: { agentId, status: "Assigned" } } // Update agentId and status
+    );
+
+    // Assign new parcels to the selected agent
+    const unassignedParcels = trackingIds.filter(trackingId => 
+      !alreadyAssignedParcels.some(parcel => parcel.TrackingId === trackingId)
+    );
+
+    if (unassignedParcels.length > 0) {
+      const assignments = unassignedParcels.map(trackingId => ({
+        TrackingId: trackingId,
+        agentId,
+        status: status || "Assigned"
+      }));
+
+      await parcelAssign.insertMany(assignments); // Insert assignments for new parcels
+    }
+
+    res.status(200).json({ message: "Parcels assigned/updated successfully" });
   } catch (error) {
     console.error("Error assigning parcels", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 
 
 
@@ -137,7 +168,7 @@ export const getParcelAssignStatus = async (req, res) => {
     const parcelAssignment = await parcelAssign.findOne({ TrackingId });
 
     if (!parcelAssignment) {
-      return res.status(404).json({ message: 'Parcel not found' });
+      return res.status(404).json({ message: 'Parcel not found',status: 'Not Assigned' });
     }
 
     res.status(200).json({ status: parcelAssignment.status });

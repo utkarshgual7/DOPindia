@@ -10,6 +10,7 @@ const ArrivedAtStationPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [deliveryTimeFrame, setDeliveryTimeFrame] = useState("");
   const [qrCodeData, setQrCodeData] = useState(null);
+  const [message, setMessage] = useState(""); // State to store success or error messages
 
   // Fetch delivery agents
   const fetchAgents = async () => {
@@ -25,8 +26,11 @@ const ArrivedAtStationPage = () => {
   // Fetch parcels with status 'Out for Delivery'
   const fetchParcels = async (agentId) => {
     try {
+      // Fetch parcels from the backend API
       const response = await fetch(`/api/parcel/getparcels`);
       const data = await response.json();
+
+      // Filter parcels with status "Out for Delivery" and optionally by delivery time frame
       const parcelsWithStatus = await Promise.all(
         data
           .filter((parcel) => parcel.status === "Out for Delivery")
@@ -36,15 +40,29 @@ const ArrivedAtStationPage = () => {
               : true
           )
           .map(async (parcel) => {
-            const parcelAssignmentStatus = await fetchParcelAssignmentStatus(
-              parcel.trackingId
-            );
-            return { ...parcel, parcelAssignmentStatus };
+            try {
+              // Fetch assignment status for each parcel
+              const parcelAssignmentStatus = await fetchParcelAssignmentStatus(
+                parcel.trackingId
+              );
+              return { ...parcel, parcelAssignmentStatus };
+            } catch (error) {
+              console.error(
+                "Error fetching parcel assignment status for",
+                parcel.trackingId,
+                error
+              );
+              return { ...parcel, parcelAssignmentStatus: "Unknown" }; // Default to 'Unknown' if error occurs
+            }
           })
       );
+
+      // Set the fetched parcels with assignment status
       setParcels(parcelsWithStatus);
     } catch (error) {
       console.error("Error fetching parcels", error);
+      // Handle error state, you can set an empty array or display a message
+      setParcels([]); // Set an empty array or handle it based on your needs
     }
   };
 
@@ -113,6 +131,7 @@ const ArrivedAtStationPage = () => {
         throw new Error("Failed to fetch assignment status");
       }
       const data = await response.json();
+      console.log(selectedAgent);
       return data.status;
     } catch (error) {
       console.error("Error fetching assignment status:", error);
@@ -130,27 +149,44 @@ const ArrivedAtStationPage = () => {
         body: JSON.stringify({
           trackingIds: selectedParcels,
           agentId: selectedAgent,
+          status: "Assigned", // Explicitly passing the status
         }),
       });
 
+      const result = await response.json(); // Parse the response JSON
+
       if (!response.ok) {
-        throw new Error("Error assigning parcels to agent");
+        throw new Error(result.error || "Error assigning parcels to agent");
       }
+
+      // Display the success message returned from the backend
+      setMessage(result.message || "Parcels assigned successfully");
 
       const assignedParcelDetails = filteredParcels.filter((parcel) =>
         selectedParcels.includes(parcel.trackingId)
       );
 
+      // Update the status of assigned parcels to "Assigned"
+      const updatedParcels = parcels.map((parcel) =>
+        selectedParcels.includes(parcel.trackingId)
+          ? { ...parcel, parcelAssignmentStatus: "Assigned" }
+          : parcel
+      );
+      setParcels(updatedParcels);
+
       // Generate QR Code data with assigned parcels details in JSON format
       const generateQrCodeData = () => {
         const data = {
-          agentName: agents.find((agent) => agent.id === selectedAgent)?.name,
+          agentName:
+            agents.find((agent) => agent.id === selectedAgent)?.name ||
+            "Unknown Agent",
           parcels: assignedParcelDetails.map((parcel) => ({
-            trackingId: parcel.trackingId,
-            recipientName: parcel.recipientName,
-            recipientAddress: parcel.recipientAddress,
-            recipientContactNumber: parcel.recipientContactNumber,
-            recipientPincode: parcel.recipientPincode,
+            trackingId: parcel.trackingId || "N/A",
+            recipientName: parcel.recipientName || "N/A",
+            recipientAddress: parcel.recipientAddress || "N/A",
+            recipientContactNumber: parcel.recipientContactNumber || "N/A",
+            recipientPincode: parcel.recipientPincode || "N/A",
+            deliveryTimeFrame: parcel.deliveryTimeFrame || "N/A",
           })),
         };
 
@@ -164,8 +200,10 @@ const ArrivedAtStationPage = () => {
       // Refresh parcels list
       fetchParcels(selectedAgent);
       setSelectedParcels([]);
+      console.log(selectedAgent);
     } catch (error) {
       console.error("Error assigning parcels to agent", error);
+      setMessage(error.message);
     }
   };
 
@@ -181,12 +219,12 @@ const ArrivedAtStationPage = () => {
         <h2 className="text-xl font-semibold mb-4">Select a Delivery Agent</h2>
         <select
           value={selectedAgent}
-          onChange={(e) => handleAgentSelection(e.target.value)}
+          onChange={(e) => handleAgentSelection(e.target.value)} // This will now set agentId
           className="w-full px-4 py-2 border border-gray-300 rounded-md"
         >
           <option value="">-- Select Agent --</option>
           {agents.map((agent) => (
-            <option key={agent.id} value={agent.id}>
+            <option key={agent.agentId} value={agent.agentId}>
               {agent.name}
             </option>
           ))}
@@ -287,6 +325,7 @@ const ArrivedAtStationPage = () => {
               Assign Selected Parcels
             </button>
           )}
+          {message && <p>{message}</p>}
         </div>
       )}
 
