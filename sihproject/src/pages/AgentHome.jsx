@@ -27,7 +27,7 @@ const AgentHome = () => {
       backgroundImage:
         "https://i.ibb.co/7112Sh1/istockphoto-1434715649-612x612.jpg",
       buttonImage: "https://i.ibb.co/cT9xYwX/icons8-edit-property-48.png",
-      link: "/yourorders",
+      link: "/startdelivering",
     },
     {
       id: 4,

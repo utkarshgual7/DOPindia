@@ -1,9 +1,9 @@
 
 import express from 'express';
-import { bookParcel, changeParcelStatus, getAllParcels, getAllTimeFrames, getDeliveryTimeFrame, getParcelCurrentStatus, orders, updateDeliveryTimeFrame, updateParcelStatus} from '../controller/parcel.controller.js';
+import { bookParcel, changeParcelStatus, getAllParcels, getAllTimeFrames, getDeliveryTimeFrame, getParcelByTrackingId, getParcelCurrentStatus, orders, updateDeliveryTimeFrame, updateParcelStatus} from '../controller/parcel.controller.js';
 import { createComplaint, getAllComplaints } from '../controller/complaint.controller.js';
 
-import { assignParcelsToAgent, getParcelAssignStatus } from '../controller/agent.controller.js';
+import { assignParcelsToAgent, getAssignedParcelsByAgentId, getParcelAssignStatus, sendOtpToCustomer, verifyOtpAndMarkDelivered } from '../controller/agent.controller.js';
 
 
 const parcelRoutes = express.Router();
@@ -24,6 +24,10 @@ parcelRoutes.get('/orders',orders);
 parcelRoutes.get('/timeframes/:email',getAllTimeFrames);
 parcelRoutes.put('/assign-parcels',assignParcelsToAgent);
 parcelRoutes.get('/assignstatus/:TrackingId',getParcelAssignStatus);
+parcelRoutes.get('/assigned/:agentId',getAssignedParcelsByAgentId);
+parcelRoutes.get('/:TrackingId',getParcelByTrackingId);
+parcelRoutes.post('/otp/verify',verifyOtpAndMarkDelivered);
+parcelRoutes.post('/otp/send',sendOtpToCustomer);
 
 
 

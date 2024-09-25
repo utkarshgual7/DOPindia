@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken';
 import Agent from "../model/agent.model.js";
 import { uuid } from 'uuidv4';
 import Parcel from "../model/parcel.model.js";
+import { MarkDelivery } from '../helpers/MarkDelivery.js';
+import { sendMail } from '../helpers/sendMail.js';
+
 
 const generateAgentId = () => {
   return Math.floor(10000000 + Math.random() * 90000000); // Generates a random 8-digit number
@@ -64,6 +67,9 @@ export async function registerAgent(req, res) {
 
 
 import parcelAssign from "../model/parcelAssign.model.js";
+import DeliveryOtp from '../model/deliveryOtp.model.js';
+import { senderParcelUpdate } from '../helpers/senderParcelUpdate.js';
+import { recParcelUpdate } from '../helpers/recParcelUpdate.js';
 
 // Assign parcels to a delivery agent
 // Assign parcels to a delivery agent
@@ -175,5 +181,101 @@ export const getParcelAssignStatus = async (req, res) => {
   } catch (error) {
     console.error('Error fetching parcel status:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getAssignedParcelsByAgentId = async (req, res) => {
+  const { agentId } = req.params;
+
+  try {
+    const parcels = await parcelAssign.find({ agentId: agentId });
+
+    if (!parcels.length) {
+      return res.status(404).json({ message: 'No parcels assigned to this agent.' });
+    }
+
+    res.status(200).json(parcels);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+export const sendOtpToCustomer = async (req, res) => {
+  const { trackingId } = req.body;
+
+  try {
+    const parcel = await parcelAssign.findOne({ TrackingId:trackingId });
+    if (!parcel) {
+      return res.status(404).json({ message: "Parcel not found." });
+    }
+    const parcelemail= await Parcel.findOne({trackingId})
+    if (!parcelemail) {
+      return res.status(404).json({ message: "Parcel email not found." });
+    }
+    const email = parcelemail.recipientEmail;
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    parcel.otp = otp; // Save OTP in the parcel document
+    await sendMail(email, 'Share Delivery Code', "", MarkDelivery(otp));
+
+    const deliveryotp = new DeliveryOtp({
+    trackingId,
+      otp,
+      recipientEmail:email
+    });
+    await deliveryotp.save(); // Save the updated parcel with OTP
+    return res.status(200).json({ message: "OTP sent to customer." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error." });
+  }
+};
+
+
+// Verify OTP and mark as delivered
+export const verifyOtpAndMarkDelivered = async (req, res) => {
+  const { trackingId, otp } = req.body;
+
+  try {
+    const deliveryotp = await DeliveryOtp.findOne({ trackingId });
+    if (!deliveryotp) {
+      return res.status(404).json({ message:"Delivery OTP not found." });
+    }
+
+    // Verify OTP
+    if (deliveryotp.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP." });
+    }
+
+const parcelst= await parcelAssign.findOne({TrackingId: trackingId})
+if (!parcelst) {
+  return res.status(404).json({ message: "Parcel not found." });
+}
+const final= await Parcel.findOne({trackingId})
+if (!final) {
+  return res.status(404).json({ message: "Parcel not found." });
+}
+const recipientEmail = final.recipientEmail
+const senderEmail = final.senderEmail
+const recipientName = final.recipientName
+const senderName = final.senderName
+const status = "Delivered"
+
+    // Mark the parcel as delivered
+    parcelst.status = "Delivered";
+    deliveryotp.otp = null; // Clear OTP after verification
+    final.status="Delivered";
+    await parcelst.save();
+    await deliveryotp.save();
+    await final.save();
+    sendMail(senderEmail, "Parcel Status Update", "", senderParcelUpdate(senderName, trackingId, status));
+    sendMail(recipientEmail, "Parcel Status Update", "", recParcelUpdate(recipientName, trackingId, status));
+    return res.status(200).json({ message: "Parcel marked as delivered." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error." });
   }
 };

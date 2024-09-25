@@ -36,6 +36,7 @@ import ParcelScanForDelivery from "./pages/AgentDashboard.jsx";
 import AgentLogin from "./pages/AgentLogin.jsx";
 import AgentProtectedRoute from "./components/AgentProtectedRoute.jsx";
 import NoPage from "./pages/NoPage.jsx";
+import StartDelivering from "./pages/StartDelivering.jsx";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -92,6 +93,7 @@ const App = () => {
           </Route>
           <Route element={<AgentProtectedRoute />}>
             <Route path="/agentdashboard" element={<AgentHome />} />
+            <Route path="/startdelivering" element={<StartDelivering />} />
 
             <Route
               path="/parcelscanfordelivery"
