@@ -2,7 +2,7 @@ import { parcelBookingMail } from "../helpers/parcelBookingMail.js";
 import { parcelRecMail } from "../helpers/parcelRecMail.js";
 import { senderParcelUpdate } from "../helpers/senderParcelUpdate.js";
 import { sendMail } from "../helpers/sendMail.js";
-import { notifyUser } from "../helpers/smsService.js";
+// import { notifyUser } from "../helpers/smsService.js";
 import Parcel from "../model/parcel.model.js";
 import ParcelStatus from "../model/status.model.js";
 import { recParcelUpdate } from "../helpers/recParcelUpdate.js";
@@ -41,8 +41,8 @@ export const bookParcel = async (req, res) => {
     sendMail(recipientEmail, "Arriving a Parcel", "", parcelRecMail(recipientName,trackingId));;
 
     // Send SMS for parcel booking feature
-    notifyUser('parcelBooking', senderPhone, { trackingNumber: trackingId });
-    notifyUser('parcelBooking', recipientPhone, { trackingNumber: trackingId });
+    // notifyUser('parcelBooking', senderPhone, { trackingNumber: trackingId });
+    // notifyUser('parcelBooking', recipientPhone, { trackingNumber: trackingId });
 
 
     res.status(201).json({ message: 'Parcel booked successfully!', parcel });

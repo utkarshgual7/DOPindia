@@ -29,6 +29,9 @@ app.use("/api/location",locationRoutes);
 
 
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sihproject', 'dist', 'index.html'));
+});
 
 
 // Error handling middleware
